@@ -148,7 +148,7 @@ function install(options) {
       var name = <%- JSON.stringify(AppCache.name) %>;
 
       var doLoad = function() {
-        var page = directory + name + '.html';
+        var page = options.appcachePagePath || (directory + name + '.html');
         var iframe = document.createElement('iframe');
 
         <% if (AppCache.events) { %>

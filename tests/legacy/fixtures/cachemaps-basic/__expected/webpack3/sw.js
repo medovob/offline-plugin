@@ -688,6 +688,8 @@ function WebpackServiceWorker(params, helpers) {
   }
 
   function addAllNormalized(cache, requests, options) {
+    requests = requests.slice();
+
     var bustValue = options.bust;
     var failAll = options.failAll !== false;
     var deleteFirst = options.deleteFirst === true;
@@ -726,8 +728,13 @@ function WebpackServiceWorker(params, helpers) {
       }
 
       if (!failAll) {
-        responses = responses.filter(function (data) {
-          return !data.error;
+        responses = responses.filter(function (data, i) {
+          if (!data.error) {
+            return true;
+          }
+
+          requests.splice(i, 1);
+          return false;
         });
       }
 

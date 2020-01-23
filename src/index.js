@@ -339,20 +339,10 @@ export default class OfflinePlugin {
 
     const excludes = this.options.excludes;
     let assets = Object.keys(compilation.assets);
-    let externals = this.options.externals;
+    let externals = this.options.externals.slice();
 
     if (Array.isArray(excludes) && excludes.length) {
-      assets = assets.filter((asset) => {
-        if (excludes.some((glob) => {
-          if (minimatch(asset, glob)) {
-            return true;
-          }
-        })) {
-          return false;
-        }
-
-        return true;
-      });
+      assets = assets.filter((asset) => !excludes.some((glob) => minimatch(asset, glob)));
     }
 
     this.externals = this.validatePaths(externals);
@@ -488,8 +478,15 @@ export default class OfflinePlugin {
         this.assets.indexOf(validatedPath) === -1
       ) return;
 
+      let source = compilation.assets[key].source();
+      if (source instanceof ArrayBuffer) {
+        // This is the case for WebAssembly modules.
+        // getHashDigest does not accept ArrayBuffers, so wrap source
+        // in something that getHashDigest does accept.
+        source = new Uint8Array(source);
+      }
       const hash = loaderUtils.getHashDigest(
-        compilation.assets[key].source(), 'sha1'
+        source, 'sha1'
       );
 
       this.hashesMap[hash] = validatedPath;

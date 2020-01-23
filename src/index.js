@@ -270,7 +270,8 @@ export default class OfflinePlugin {
         return;
       }
 
-      const stats = compilation.getStats().toJson();
+      // REMOVED - causing a big performance hit and doesn't have an obvious purpose
+      // const stats = compilation.getStats().toJson();
 
       // By some reason errors raised here are not fatal,
       // so we need manually try..catch and exit with error
